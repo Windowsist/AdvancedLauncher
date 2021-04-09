@@ -76,6 +76,7 @@ int wmain(int argc, wchar_t** argv, wchar_t** /*envp*/)
 		auto type = launch.GetNamedString(L"Type");
 		if (type == L"process")
 		{
+			SetEnvironmentVariableW(L"LauncherDir", launcherDir);
 			auto envs = launch.GetNamedArray(L"EnvironmentVariables");
 			for (uint32_t i2 = 0, count2 = envs.Size(); i2 < count2; i2++)
 			{
