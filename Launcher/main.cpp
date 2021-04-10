@@ -44,10 +44,10 @@ int
 		}
 		auto jsonFile = winrt::Windows::Storage::StorageFile::GetFileFromPathAsync(filePathJson).get();
 		auto launcherDir = jsonFile.GetParentAsync().get().Path();
-		auto doc = winrt::Windows::Data::Json::JsonObject::Parse(winrt::Windows::Storage::FileIO::ReadTextAsync(jsonFile).get());
+		auto jsonObj = winrt::Windows::Data::Json::JsonObject::Parse(winrt::Windows::Storage::FileIO::ReadTextAsync(jsonFile).get());
 		SetEnvironmentVariableW(L"LauncherDir", launcherDir.c_str());
 		{
-			auto envs = doc.GetNamedArray(L"EnvironmentVariables");
+			auto envs = jsonObj.GetNamedArray(L"EnvironmentVariables");
 			for (uint32_t i = 0U, count = envs.Size(); i < count; i++)
 			{
 				auto env = envs.GetObjectAt(i);
@@ -56,7 +56,7 @@ int
 			}
 		}
 		SetEnvironmentVariableW(L"LauncherDir", nullptr);
-		auto launches = doc.GetNamedArray(L"LaunchApps");
+		auto launches = jsonObj.GetNamedArray(L"LaunchApps");
 		for (uint32_t i = 0U, count = launches.Size(); i < count; i++)
 		{
 			auto launch = launches.GetObjectAt(i);
