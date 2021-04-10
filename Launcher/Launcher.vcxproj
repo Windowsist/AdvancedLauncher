@@ -118,6 +118,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="main.h" />
     <ClInclude Include="pch.h" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pch.cpp">
