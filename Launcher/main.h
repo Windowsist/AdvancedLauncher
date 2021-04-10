@@ -1,4 +1,6 @@
 #pragma once
 #include "pch.h"
 
-std::wstring expandEnvString(LPCWSTR raw);
+inline void launch(LPWSTR lpCmdLine);
+
+std::wstring expandEnvString(winrt::hstring raw);
