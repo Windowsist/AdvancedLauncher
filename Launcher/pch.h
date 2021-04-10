@@ -1,6 +1,8 @@
 ﻿
 #define WINAPI_FAMILY WINAPI_FAMILY_PC_APP
-// #define WIN32_LEAN_AND_MEAN
+
+#define WIN32_LEAN_AND_MEAN
+#define WINRT_LEAN_AND_MEAN
 
 #include <windows.h>
 #include <corecrt_startup.h>
