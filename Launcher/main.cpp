@@ -138,7 +138,7 @@ inline void launch(LPWSTR lpCmdLine)
 			auto ParametersValue = launch.GetNamedValue(L"WorkingDirectory");
 			SetEnvironmentVariableW(L"LauncherDir", nullptr);
 			{
-				int srst = (int)ShellExecuteW(
+				int srst = (int)(LONG_PTR)ShellExecuteW(
 					nullptr,
 					operation.c_str(),
 					filePath.c_str(),
