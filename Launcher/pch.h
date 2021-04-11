@@ -1,5 +1,13 @@
 ﻿
 // #define WINAPI_FAMILY WINAPI_FAMILY_PC_APP
+// #define WINAPI_FAMILY WINAPI_PARTITION_SYSTEM
+#define WINAPI_FAMILY WINAPI_FAMILY_GAMES
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef WINRT_LEAN_AND_MEAN
+#define WINRT_LEAN_AND_MEAN
+#endif
 
 #include <windows.h>
 #include <shellapi.h>
