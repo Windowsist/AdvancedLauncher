@@ -8,36 +8,18 @@ int
 		_In_opt_ HINSTANCE /*hPrevInstance*/,
 		_In_ LPWSTR lpCmdLine,
 		_In_ int /*nShowCmd*/)
-{
-	try
-	{
-		launch(lpCmdLine);
-	}
-	catch (winrt::hresult_error &result_error)
-	{
-		FatalAppExitW(0, result_error.message().c_str());
-	}
-	return 0;
-}
-
-inline void launch(LPWSTR lpCmdLine)
+try
 {
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
-	STARTUPINFOW startupinfo{};
-	PROCESS_INFORMATION procinfo;
-	auto filePathJson = std::wstring();
+	auto filePathJson = winrt::hstring();
 	{
-		wchar_t buffer[260];
-		DWORD rst1 = GetModuleFileNameW(nullptr, buffer, 260);
-		if ((!rst1)||GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+		wchar_t buffer[MAX_PATH];
+		DWORD rst1 = GetModuleFileNameW(nullptr, buffer, MAX_PATH);
+		if ((!rst1) || GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 		{
 			winrt::throw_last_error();
 		}
-		filePathJson.assign(buffer);
-		auto end = filePathJson.end();
-		auto beg = end - 3;
-		filePathJson.erase(end - 3, end);
-		filePathJson.append(L"json");
+		filePathJson = winrt::hstring(buffer, (uint32_t)wcslen(buffer) - 3) + L"json";
 	}
 	auto jsonFile = winrt::Windows::Storage::StorageFile::GetFileFromPathAsync(filePathJson).get();
 	auto launcherDir = jsonFile.GetParentAsync().get().Path();
@@ -53,6 +35,8 @@ inline void launch(LPWSTR lpCmdLine)
 		}
 	}
 	SetEnvironmentVariableW(L"LauncherDir", nullptr);
+	STARTUPINFOW startupinfo{};
+	PROCESS_INFORMATION procinfo;
 	if (__argc > 1)
 	{
 		wchar_t **argv = __wargv;
@@ -61,7 +45,7 @@ inline void launch(LPWSTR lpCmdLine)
 		{
 			winrt::throw_last_error();
 		}
-		return;
+		return 0;
 	}
 	auto launches = jsonObj.GetNamedArray(L"LaunchApps");
 	for (uint32_t i = 0U, count = launches.Size(); i < count; i++)
@@ -83,7 +67,7 @@ inline void launch(LPWSTR lpCmdLine)
 			auto commandLine = expandEnvString(launch.GetNamedString(L"CommandLine"));
 			SetEnvironmentVariableW(L"LauncherDir", nullptr);
 			{
-				BOOL crst = CreateProcessW(appPath.c_str(), commandLine.data(), nullptr, nullptr, FALSE, 0UL, nullptr, workingDirectory.c_str(), &startupinfo, &procinfo);
+				BOOL crst = CreateProcessW(appPath.c_str(), std::wstring(commandLine).data(), nullptr, nullptr, FALSE, 0UL, nullptr, workingDirectory.c_str(), &startupinfo, &procinfo);
 				if (!crst)
 				{
 					winrt::throw_last_error();
@@ -126,11 +110,16 @@ inline void launch(LPWSTR lpCmdLine)
 			winrt::throw_hresult(ERROR_UNKNOWN_PROPERTY);
 		}
 	}
+	return 0;
+}
+catch (winrt::hresult_error &result_error)
+{
+	FatalAppExitW(0, result_error.message().c_str());
+	return 0;
 }
 
-std::wstring expandEnvString(const winrt::param::hstring &_raw)
+winrt::hstring expandEnvString(const winrt::hstring &raw)
 {
-	winrt::hstring raw = _raw;
 	DWORD rst1 = ExpandEnvironmentStringsW(raw.c_str(), nullptr, 0UL);
 	if (!rst1)
 	{
@@ -142,7 +131,7 @@ std::wstring expandEnvString(const winrt::param::hstring &_raw)
 		delete[] buffer;
 		winrt::throw_last_error();
 	}
-	auto value = std::wstring(buffer);
+	auto value = winrt::hstring(buffer);
 	delete[] buffer;
 	return value;
 }
