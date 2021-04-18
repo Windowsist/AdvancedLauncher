@@ -14,8 +14,7 @@ try
 	auto filePathJson = winrt::hstring();
 	{
 		wchar_t buffer[MAX_PATH];
-		DWORD rst1 = GetModuleFileNameW(nullptr, buffer, MAX_PATH);
-		if ((!rst1) || GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+		if ((!GetModuleFileNameW(nullptr, buffer, MAX_PATH)) || GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 		{
 			winrt::throw_last_error();
 		}
@@ -30,8 +29,7 @@ try
 		for (uint32_t i = 0U, count = envs.Size(); i < count; i++)
 		{
 			auto env = envs.GetObjectAt(i);
-			auto rst = expandEnvString(env.GetNamedString(L"Value"));
-			SetEnvironmentVariableW(env.GetNamedString(L"Variable").c_str(), rst.c_str());
+			SetEnvironmentVariableW(env.GetNamedString(L"Variable").c_str(), expandEnvString(env.GetNamedString(L"Value")).c_str());
 		}
 	}
 	SetEnvironmentVariableW(L"LauncherDir", nullptr);
@@ -40,8 +38,11 @@ try
 	if (__argc > 1)
 	{
 		wchar_t **argv = __wargv;
-		auto pathdir = winrt::Windows::Storage::StorageFile::GetFileFromPathAsync(argv[1]).get().GetParentAsync().get().Path();
-		if (!CreateProcessW(argv[1], lpCmdLine, nullptr, nullptr, FALSE, 0UL, nullptr, pathdir.c_str(), &startupinfo, &procinfo))
+		if (!CreateProcessW(argv[1],
+							lpCmdLine,
+							nullptr, nullptr, FALSE, 0UL, nullptr,
+							winrt::Windows::Storage::StorageFile::GetFileFromPathAsync(argv[1]).get().GetParentAsync().get().Path().c_str(),
+							&startupinfo, &procinfo))
 		{
 			winrt::throw_last_error();
 		}
@@ -59,16 +60,15 @@ try
 			for (uint32_t i2 = 0U, count2 = envs.Size(); i2 < count2; i2++)
 			{
 				auto env = envs.GetObjectAt(i2);
-				auto rst = expandEnvString(env.GetNamedString(L"Value"));
-				SetEnvironmentVariableW(env.GetNamedString(L"Variable").c_str(), rst.c_str());
+				SetEnvironmentVariableW(env.GetNamedString(L"Variable").c_str(), expandEnvString(env.GetNamedString(L"Value")).c_str());
 			}
-			auto appPath = expandEnvString(launch.GetNamedString(L"AppPath"));
-			auto workingDirectory = expandEnvString(launch.GetNamedString(L"WorkingDirectory"));
-			auto commandLine = expandEnvString(launch.GetNamedString(L"CommandLine"));
 			SetEnvironmentVariableW(L"LauncherDir", nullptr);
 			{
-				BOOL crst = CreateProcessW(appPath.c_str(), std::wstring(commandLine).data(), nullptr, nullptr, FALSE, 0UL, nullptr, workingDirectory.c_str(), &startupinfo, &procinfo);
-				if (!crst)
+				if (!CreateProcessW(expandEnvString(launch.GetNamedString(L"AppPath")).c_str(),
+									std::wstring(expandEnvString(launch.GetNamedString(L"CommandLine"))).data(),
+									nullptr, nullptr, FALSE, 0UL, nullptr,
+									expandEnvString(launch.GetNamedString(L"WorkingDirectory")).c_str(),
+									&startupinfo, &procinfo))
 				{
 					winrt::throw_last_error();
 				}
@@ -125,13 +125,10 @@ winrt::hstring expandEnvString(const winrt::hstring &raw)
 	{
 		winrt::throw_last_error();
 	}
-	LPWSTR buffer = new wchar_t[rst1];
-	if (!ExpandEnvironmentStringsW(raw.c_str(), buffer, rst1))
+	auto value = winrt::impl::hstring_builder(rst1);
+	if (!ExpandEnvironmentStringsW(raw.c_str(), value.data(), rst1))
 	{
-		delete[] buffer;
 		winrt::throw_last_error();
 	}
-	auto value = winrt::hstring(buffer);
-	delete[] buffer;
-	return value;
+	return value.to_hstring();
 }
