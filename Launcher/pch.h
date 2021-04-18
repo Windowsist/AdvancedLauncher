@@ -10,7 +10,6 @@
 #endif
 
 #include <windows.h>
-#include <shellapi.h>
 #include <corecrt_startup.h>
 #include <winrt/base.h>
 #include <winrt/Windows.System.h>
