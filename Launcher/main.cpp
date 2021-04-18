@@ -62,7 +62,6 @@ try
 				auto env = envs.GetObjectAt(i2);
 				SetEnvironmentVariableW(env.GetNamedString(L"Variable").c_str(), expandEnvString(env.GetNamedString(L"Value")).c_str());
 			}
-			SetEnvironmentVariableW(L"LauncherDir", nullptr);
 			{
 				if (!CreateProcessW(expandEnvString(launch.GetNamedString(L"AppPath")).c_str(),
 									std::wstring(expandEnvString(launch.GetNamedString(L"CommandLine"))).data(),
@@ -73,6 +72,7 @@ try
 					winrt::throw_last_error();
 				}
 			}
+			SetEnvironmentVariableW(L"LauncherDir", nullptr);
 			for (uint32_t i2 = 0U, count2 = envs.Size(); i2 < count2; i2++)
 			{
 				SetEnvironmentVariableW(envs.GetObjectAt(i2).GetNamedString(L"Variable").c_str(), nullptr);
