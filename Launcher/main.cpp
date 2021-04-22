@@ -46,6 +46,8 @@ try
 		{
 			winrt::throw_last_error();
 		}
+		CloseHandle(procinfo.hProcess);
+		CloseHandle(procinfo.hThread);
 		return 0;
 	}
 	auto launches = jsonObj.GetNamedArray(L"LaunchApps");
@@ -84,6 +86,8 @@ try
 					winrt::throw_last_error();
 				}
 			}
+			CloseHandle(procinfo.hProcess);
+			CloseHandle(procinfo.hThread);
 		}
 		else if (type == L"AppListEntry")
 		{
