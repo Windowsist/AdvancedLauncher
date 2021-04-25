@@ -1,4 +1,4 @@
 #pragma once
 #include "pch.h"
 
-winrt::hstring expandEnvString(const winrt::hstring &raw);
+winrt::hstring expenv(const winrt::hstring &raw);
