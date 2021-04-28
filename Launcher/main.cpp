@@ -12,119 +12,102 @@ wWinMain(
 	try
 {
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
-	auto filePathJson = winrt::hstring();
-	{
-		wchar_t buffer[MAX_PATH];
-		if ((!GetModuleFileNameW(nullptr, buffer, MAX_PATH)) || GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+	auto jsonFile = winrt::Windows::Storage::StorageFile::GetFileFromPathAsync(getJsonFilePath()).get();
+		auto launcherDir = jsonFile.GetParentAsync().get().Path();
+		auto jsonObj = winrt::Windows::Data::Json::JsonObject::Parse(winrt::Windows::Storage::FileIO::ReadTextAsync(jsonFile).get());
+		SetEnvironmentVariableW(L"LauncherDir", launcherDir.c_str());
 		{
-			winrt::throw_last_error();
-		}
-		filePathJson = winrt::hstring(buffer, (uint32_t)wcslen(buffer) - 3) + L"json";
-	}
-	auto jsonFile = winrt::Windows::Storage::StorageFile::GetFileFromPathAsync(filePathJson).get();
-	auto launcherDir = jsonFile.GetParentAsync().get().Path();
-	auto jsonObj = winrt::Windows::Data::Json::JsonObject::Parse(winrt::Windows::Storage::FileIO::ReadTextAsync(jsonFile).get());
-	SetEnvironmentVariableW(L"LauncherDir", launcherDir.c_str());
-	{
-		auto envs = jsonObj.GetNamedArray(L"EnvironmentVariables");
-		for (uint32_t i = 0U, count = envs.Size(); i < count; i++)
-		{
-			auto env = envs.GetObjectAt(i);
-			SetEnvironmentVariableW(env.GetNamedString(L"Variable").c_str(), expenv(env.GetNamedString(L"Value")).c_str());
-		}
-	}
-	SetEnvironmentVariableW(L"LauncherDir", nullptr);
-	STARTUPINFOW startupinfo{};
-	PROCESS_INFORMATION procinfo;
-	if (__argc > 1)
-	{
-		wchar_t** argv = __wargv;
-		if (!CreateProcessW(argv[1],
-			lpCmdLine,
-			nullptr, nullptr, FALSE, 0UL, nullptr,
-			winrt::Windows::Storage::StorageFile::GetFileFromPathAsync(argv[1]).get().GetParentAsync().get().Path().c_str(),
-			&startupinfo, &procinfo))
-		{
-			winrt::throw_last_error();
-		}
-		CloseHandle(procinfo.hProcess);
-		CloseHandle(procinfo.hThread);
-		return 0;
-	}
-	auto launches = jsonObj.GetNamedArray(L"LaunchApps");
-	for (uint32_t i = 0U, count = launches.Size(); i < count; i++)
-	{
-		auto launch = launches.GetObjectAt(i);
-		auto type = launch.GetNamedString(L"Type");
-		if (type == L"process")
-		{
-			SetEnvironmentVariableW(L"LauncherDir", launcherDir.c_str());
-			auto envs = launch.GetNamedArray(L"EnvironmentVariables");
-			for (uint32_t i2 = 0U, count2 = envs.Size(); i2 < count2; i2++)
+			auto envs = jsonObj.GetNamedArray(L"EnvironmentVariables");
+			for (uint32_t i = 0U, count = envs.Size(); i < count; i++)
 			{
-				auto env = envs.GetObjectAt(i2);
+				auto env = envs.GetObjectAt(i);
 				SetEnvironmentVariableW(env.GetNamedString(L"Variable").c_str(), expenv(env.GetNamedString(L"Value")).c_str());
 			}
+		}
+		SetEnvironmentVariableW(L"LauncherDir", nullptr);
+		STARTUPINFOW startupinfo{};
+		PROCESS_INFORMATION procinfo;
+		if (__argc > 1)
+		{
+			wchar_t** argv = __wargv;
+			if (!CreateProcessW(argv[1],
+				lpCmdLine,
+				nullptr, nullptr, FALSE, 0UL, nullptr,
+				winrt::Windows::Storage::StorageFile::GetFileFromPathAsync(argv[1]).get().GetParentAsync().get().Path().c_str(),
+				&startupinfo, &procinfo))
 			{
-				struct wcstr_tmp
-				{
-					wchar_t* data;
-					~wcstr_tmp()
-					{
-						free(data);
-					}
-				};
-				if (!CreateProcessW(
-					expenv(launch.GetNamedString(L"AppPath")).c_str(),
-					wcstr_tmp{ _wcsdup(expenv(launch.GetNamedString(L"CommandLine")).c_str()) }.data,
-					nullptr, nullptr, FALSE, 0UL, nullptr,
-					expenv(launch.GetNamedString(L"WorkingDirectory")).c_str(),
-					&startupinfo, &procinfo))
-				{
-					winrt::throw_last_error();
-				}
-			}
-			SetEnvironmentVariableW(L"LauncherDir", nullptr);
-			for (uint32_t i2 = 0U, count2 = envs.Size(); i2 < count2; i2++)
-			{
-				SetEnvironmentVariableW(envs.GetObjectAt(i2).GetNamedString(L"Variable").c_str(), nullptr);
-			}
-			if (launch.GetNamedBoolean(L"Wait"))
-			{
-				if (WaitForSingleObject(procinfo.hProcess, INFINITE) == WAIT_FAILED)
-				{
-					winrt::throw_last_error();
-				}
+				winrt::throw_last_error();
 			}
 			CloseHandle(procinfo.hProcess);
 			CloseHandle(procinfo.hThread);
+			return 0;
 		}
-		else if (type == L"AppListEntry")
+		auto launches = jsonObj.GetNamedArray(L"LaunchApps");
+		for (uint32_t i = 0U, count = launches.Size(); i < count; i++)
 		{
-			auto id = launch.GetNamedString(L"Id");
-			auto entries = winrt::Windows::ApplicationModel::Package::Current().GetAppListEntries();
-			bool found = false;
-			for (uint32_t i2 = 0U, size = entries.Size(); i2 < size; i2++)
+			auto launch = launches.GetObjectAt(i);
+			auto type = launch.GetNamedString(L"Type");
+			if (type == L"process")
 			{
-				auto entry = entries.GetAt(i2);
-				if (entry.AppUserModelId() == id)
+				SetEnvironmentVariableW(L"LauncherDir", launcherDir.c_str());
+				auto envs = launch.GetNamedArray(L"EnvironmentVariables");
+				for (uint32_t i2 = 0U, count2 = envs.Size(); i2 < count2; i2++)
 				{
-					entry.LaunchAsync().get();
-					found = true;
-					break;
+					auto env = envs.GetObjectAt(i2);
+					SetEnvironmentVariableW(env.GetNamedString(L"Variable").c_str(), expenv(env.GetNamedString(L"Value")).c_str());
+				}
+				{
+					if (!CreateProcessW(
+						expenv(launch.GetNamedString(L"AppPath")).c_str(),
+						const_cast<LPWSTR>(expenv(launch.GetNamedString(L"CommandLine")).data()),
+						nullptr, nullptr, FALSE, 0UL, nullptr,
+						expenv(launch.GetNamedString(L"WorkingDirectory")).c_str(),
+						&startupinfo, &procinfo))
+					{
+						winrt::throw_last_error();
+					}
+				}
+				SetEnvironmentVariableW(L"LauncherDir", nullptr);
+				for (uint32_t i2 = 0U, count2 = envs.Size(); i2 < count2; i2++)
+				{
+					SetEnvironmentVariableW(envs.GetObjectAt(i2).GetNamedString(L"Variable").c_str(), nullptr);
+				}
+				if (launch.GetNamedBoolean(L"Wait"))
+				{
+					if (WaitForSingleObject(procinfo.hProcess, INFINITE) == WAIT_FAILED)
+					{
+						winrt::throw_last_error();
+					}
+				}
+				CloseHandle(procinfo.hProcess);
+				CloseHandle(procinfo.hThread);
+			}
+			else if (type == L"AppListEntry")
+			{
+				auto id = launch.GetNamedString(L"Id");
+				auto entries = winrt::Windows::ApplicationModel::Package::Current().GetAppListEntries();
+				bool found = false;
+				for (uint32_t i2 = 0U, size = entries.Size(); i2 < size; i2++)
+				{
+					auto entry = entries.GetAt(i2);
+					if (entry.AppUserModelId() == id)
+					{
+						entry.LaunchAsync().get();
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+				{
+					winrt::throw_hresult(ERROR_NOT_FOUND);
 				}
 			}
-			if (!found)
+			else
 			{
-				winrt::throw_hresult(ERROR_NOT_FOUND);
+				winrt::throw_hresult(ERROR_UNKNOWN_PROPERTY);
 			}
 		}
-		else
-		{
-			winrt::throw_hresult(ERROR_UNKNOWN_PROPERTY);
-		}
-	}
-	return 0;
+		return 0;
 }
 catch (winrt::hresult_error& result_error)
 {
@@ -145,4 +128,15 @@ winrt::hstring expenv(const winrt::hstring& raw)
 		winrt::throw_last_error();
 	}
 	return value.to_hstring();
+}
+
+inline winrt::hstring getJsonFilePath()
+{
+	wchar_t buffer[261];
+	if ((!GetModuleFileNameW(nullptr, buffer, 261)) || GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+	{
+		winrt::throw_last_error();
+	}
+	lstrcpyW(buffer + lstrlenW(buffer) - 3, L"json");
+	return winrt::hstring(buffer);
 }

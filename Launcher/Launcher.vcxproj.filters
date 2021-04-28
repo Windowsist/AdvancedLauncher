@@ -37,4 +37,8 @@
   <ItemGroup>
     <Text Include="readme.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <Library Include="ucrtbase.lib" />
+    <Library Include="msvcp_win.lib" />
+  </ItemGroup>
 </Project>
