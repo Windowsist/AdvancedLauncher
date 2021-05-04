@@ -7,22 +7,14 @@
     <CppWinRTGenerateWindowsMetadata>true</CppWinRTGenerateWindowsMetadata>
     <MinimalCoreWin>true</MinimalCoreWin>
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{da4181a6-05ed-4294-9bc3-331b4615ae02}</ProjectGuid>
+    <ProjectGuid>{a2aa9208-dd1a-447b-8d86-d353cfd05064}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Launcher</RootNamespace>
     <WindowsTargetPlatformVersion Condition=" '$(WindowsTargetPlatformVersion)' == '' ">10.0.19041.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformMinVersion>10.0.18362.0</WindowsTargetPlatformMinVersion>
+    <WindowsTargetPlatformMinVersion>10.0.19041.0</WindowsTargetPlatformMinVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
@@ -60,12 +52,6 @@
     <Import Project="PropertySheet.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <GenerateManifest>false</GenerateManifest>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <GenerateManifest>false</GenerateManifest>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
@@ -91,25 +77,6 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <Link>
-      <EntryPointSymbol Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </EntryPointSymbol>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">kernel32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </IgnoreSpecificDefaultLibraries>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
-    <ClCompile>
-      <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <Link>
-      <EntryPointSymbol Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </EntryPointSymbol>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">kernel32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </IgnoreSpecificDefaultLibraries>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
@@ -117,28 +84,17 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MultiThreadedDLL</RuntimeLibrary>
-      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <EntryPointSymbol Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </EntryPointSymbol>
-      <EntryPointSymbol Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </EntryPointSymbol>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">kernel32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">api-ms-win-crt-private-l1-1-0.lib;msvcp_win.lib;kernel32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries Condition="'$(Configuration)|$(Platform)'=='Release|x64'">msvcprt.lib;vcruntime.lib</IgnoreSpecificDefaultLibraries>
+      <MapFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </MapFileName>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="main.h" />
-    <ClInclude Include="pch.h" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="pch.cpp">
-      <PrecompiledHeader>Create</PrecompiledHeader>
-    </ClCompile>
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
     <Text Include="readme.txt">
@@ -146,8 +102,18 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="msvcp_win.lib" />
     <Library Include="api-ms-win-crt-private-l1-1-0.lib" />
+    <Library Include="msvcp_win.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="main.h" />
+    <ClInclude Include="pch.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
