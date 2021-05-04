@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "main.h"
+#include "Launcher.h"
 
 
 int
@@ -11,7 +11,7 @@ wWinMain(
 	_In_ int /*nShowCmd*/)
 	try
 {
-	winrt::init_apartment(winrt::apartment_type::single_threaded);
+	// winrt::init_apartment(winrt::apartment_type::single_threaded);
 	auto jsonFile = winrt::Windows::Storage::StorageFile::GetFileFromPathAsync(getJsonFilePath()).get();
 	auto launcherDir = jsonFile.GetParentAsync().get().Path();
 	auto jsonObj = winrt::Windows::Data::Json::JsonObject::Parse(winrt::Windows::Storage::FileIO::ReadTextAsync(jsonFile).get());

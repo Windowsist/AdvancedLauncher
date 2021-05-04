@@ -1,8 +1,14 @@
 ﻿# Advanced Launcher
 
+## How to build the program
+
+see Makefile for more information
+
+## Feature
+
 start process or AppListEntry(for MSIX Package) according to configuration file(json file)
 
-this is an example:
+this is an example configfile:
 
 ``` json
 {
