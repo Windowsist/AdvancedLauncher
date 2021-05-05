@@ -24,7 +24,7 @@
 build: Launcher.exe
 
 Launcher.exe: pch.pch pch.obj Launcher.cpp
-	$(CPP) $(CPPFLAGS) /Yu"pch.h" /Fp: "pch.pch" Launcher.cpp /link pch.obj WindowsApp.lib
+	$(CPP) $(CPPFLAGS) /Yu"pch.h" /Fp: "pch.pch" Launcher.cpp /link pch.obj /NODEFAULTLIB:msvcrt.lib store/msvcrt.lib WindowsApp.lib
 
 pch.pch: pch.h pch.cpp
 	$(CPP) $(CPPFLAGS) /c /Yc"pch.h" /Fp: "pch.pch" pch.cpp

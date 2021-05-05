@@ -1,9 +1,5 @@
 ﻿#pragma once 
 
-#pragma comment(linker,"/NODEFAULTLIB:msvcrt.lib")
-#pragma comment(lib,"store/msvcrt.lib")
-#pragma comment(lib,"WindowsApp.lib")
-
 // #define WINAPI_FAMILY_PC_APP        /* Windows Store Applications */
 // #define WINAPI_FAMILY_PHONE_APP     /* Windows Phone Applications */
 // #define WINAPI_FAMILY_SYSTEM        /* Windows Drivers and Tools */
