@@ -1,4 +1,4 @@
-﻿# AdvancedLauncher
+# AdvancedLauncher
 
 start process or AppListEntry(for MSIX Package) according to configuration file(json file)
 
