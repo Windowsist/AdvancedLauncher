@@ -1,10 +1,4 @@
-﻿# Advanced Launcher
-
-## How to build the program
-
-see Makefile for more information
-
-## Feature
+﻿# AdvancedLauncher
 
 start process or AppListEntry(for MSIX Package) according to configuration file(json file)
 
